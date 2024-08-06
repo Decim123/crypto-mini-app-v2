@@ -176,16 +176,15 @@
                 }).then(response => response.json())
                   .then(data => {
                       if (data.status === 'success') {
-                          // Обновляем задачу, чтобы она стала скрепкой после успешного выполнения
+                          window.open(link, '_blank');
+                          // Меняем скрепку на кнопку загрузки после открытия ссылки
                           const taskItem = document.getElementById(`task-item-${task_id}`);
-                          const taskActions = taskItem.querySelector('.task-actions');
-                          taskActions.innerHTML = `
+                          taskItem.querySelector('.task-actions').innerHTML = `
                               <input type="file" class="upload-screenshot" id="upload-${task_id}" accept="image/*" style="display: none;" onchange="uploadScreenshot('${tg_id}', '${task_id}')">
                               <label for="upload-${task_id}" class="upload-label" id="label-${task_id}">
                                   <span class="material-icons-outlined">attachment</span>
                               </label>
                           `;
-                          window.open(link, '_blank');
                       }
                   });
             }
