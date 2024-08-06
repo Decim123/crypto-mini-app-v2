@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, send_from_directory
-from database import *
+from mini_app.database import *  # Импорт из mini_app
 import logging, os, datetime, sqlite3
 from apscheduler.schedulers.background import BackgroundScheduler
 import importlib
