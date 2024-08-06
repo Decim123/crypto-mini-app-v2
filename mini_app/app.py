@@ -3,7 +3,6 @@ from mini_app.database import *  # Импорт из mini_app
 import logging, os, datetime, sqlite3
 from apscheduler.schedulers.background import BackgroundScheduler
 import importlib
-import sqlite3
 
 app = Flask(__name__)
 init_db()
@@ -16,7 +15,7 @@ logging.basicConfig(level=logging.DEBUG)
 def get_translation(lang):
     if lang not in ['en', 'ru', 'es']:
         lang = 'en'
-    lexicon_module = importlib.import_module(f'mini_app.translations.LEXICON_{lang.upper()}'))
+    lexicon_module = importlib.import_module(f'mini_app.translations.LEXICON_{lang.upper()}')  # исправлен путь
     return lexicon_module.LEXICON
 
 def initials_color(initials):
