@@ -27,20 +27,28 @@
                     <span class="task-text">{{ task[1] }}</span>
                     <div class="task-actions">
                         {% if task_statuses[task[0]] == 'link' %}
-                            <a href="{{ task[3] }}" class="task-link" onclick="recordTaskCheck(event, '{{ tg_id }}', '{{ task[0] }}', '{{ task[2] }}', '{{ task[3] }}')">{{ task[2] }} {{ translation['currency'] }}</a>
+                            <!-- Open link in new tab -->
+                            <a href="{{ task[3] }}" target="_blank" class="task-link" onclick="recordTaskCheck(event, '{{ tg_id }}', '{{ task[0] }}', '{{ task[2] }}', '{{ task[3] }}')">
+                                {{ task[2] }} {{ translation['currency'] }}
+                            </a>
                         {% elif task_statuses[task[0]] == 'upload' %}
+                            <!-- Show attachment button to upload screenshot -->
                             <input type="file" class="upload-screenshot" id="upload-{{ task[0] }}" accept="image/*" style="display: none;" onchange="uploadScreenshot('{{ tg_id }}', '{{ task[0] }}')">
                             <label for="upload-{{ task[0] }}" class="upload-label" id="label-{{ task[0] }}">
                                 <span class="material-icons-outlined">attachment</span>
                             </label>
                         {% elif task_statuses[task[0]] == 'screenshot' %}
+                            <!-- Show loading button when screenshot is uploaded -->
                             <button class="loading-button" id="loading-{{ task[0] }}">
                                 <span class="dot">.</span>
                                 <span class="dot">.</span>
                                 <span class="dot">.</span>
                             </button>
                         {% elif task_statuses[task[0]] == 'completed' %}
-                            <button class="task-completed-button" disabled>{{ task[2] }} {{ translation['currency'] }}</button>
+                            <!-- Task is completed, show disabled button -->
+                            <button class="task-completed-button" disabled>
+                                {{ task[2] }} {{ translation['currency'] }}
+                            </button>
                         {% endif %}
                     </div>
                 </div>
@@ -66,24 +74,6 @@
         </div>
     </div>
     
-    <div class="bottom-nav">
-        <div class="nav-item" data-target="/main">
-            <span class="material-icons-outlined">home</span>
-            <span>{{ translation['home'] }}</span>
-        </div>
-        <div class="nav-item" data-target="/leaderboard">
-            <span class="material-icons-outlined">leaderboard</span>
-            <span>{{ translation['leaderboard'] }}</span>
-        </div>
-        <div class="nav-item" data-target="/friends">
-            <span class="material-icons-outlined">group</span>
-            <span>{{ translation['friends'] }}</span>
-        </div>
-        <div class="nav-item" data-target="/tasks">
-            <span class="material-icons-outlined">check_circle_outline</span>
-            <span>{{ translation['tasks'] }}</span>
-        </div>
-    </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const tg_id = '{{ tg_id }}';
@@ -127,6 +117,7 @@
                             if (data.statuses[task[0]] === 'link') {
                                 const taskLink = document.createElement('a');
                                 taskLink.href = task[3];
+                                taskLink.target = '_blank'; // Open in new tab
                                 taskLink.className = 'task-link';
                                 taskLink.onclick = function(event) {
                                     recordTaskCheck(event, tg_id, task[0], task[2], task[3]);
