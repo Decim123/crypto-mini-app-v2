@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.DEBUG)
 def get_translation(lang):
     if lang not in ['en', 'ru', 'es']:
         lang = 'en'
-    lexicon_module = importlib.import_module(f'translations.LEXICON_{lang.upper()}')
+    lexicon_module = importlib.import_module(f'mini_app.translations.LEXICON_{lang.upper()}'))
     return lexicon_module.LEXICON
 
 def initials_color(initials):
