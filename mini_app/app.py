@@ -303,12 +303,21 @@ def upload_screenshot():
     task_id = request.form['task_id']
     file = request.files['screenshot']
     
+    logging.debug(f"Received upload for task {task_id} by user {tg_id}")
+
     if not file.content_type.startswith('image/'):
+        logging.error(f"Invalid file type for task {task_id} by user {tg_id}: {file.content_type}")
         return jsonify({'status': 'error', 'message': 'File type not allowed'}), 400
     
     filename = f"{tg_id}-{task_id}.png"
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    file.save(file_path)
+    
+    try:
+        file.save(file_path)
+        logging.debug(f"Screenshot saved to {file_path}")
+    except Exception as e:
+        logging.error(f"Failed to save screenshot for task {task_id} by user {tg_id}: {str(e)}")
+        return jsonify({'status': 'error', 'message': 'Failed to save file'}), 500
     
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
@@ -318,9 +327,8 @@ def upload_screenshot():
     conn.commit()
     conn.close()
 
-    # Добавляем логирование, чтобы вывести путь до скриншота
-    logging.debug(f"Screenshot saved for task {task_id} by user {tg_id}: {file_path}")
-    
+    logging.debug(f"Database updated with screenshot path for task {task_id} by user {tg_id}")
+
     return jsonify({'status': 'success'})
 
 
