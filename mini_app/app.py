@@ -10,7 +10,7 @@ app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'mini_app', 'screenshots
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # Настройка логгирования
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(filename='flask.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def get_translation(lang):
     if lang not in ['en', 'ru', 'es']:
