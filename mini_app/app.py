@@ -317,8 +317,12 @@ def upload_screenshot():
     ''', (file_path, tg_id, task_id))
     conn.commit()
     conn.close()
+
+    # Добавляем логирование, чтобы вывести путь до скриншота
+    logging.debug(f"Screenshot saved for task {task_id} by user {tg_id}: {file_path}")
     
     return jsonify({'status': 'success'})
+
 
 @app.route('/task_checking')
 def task_checking():
