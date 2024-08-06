@@ -15,7 +15,7 @@ logging.basicConfig(filename='flask.log', level=logging.DEBUG, format='%(asctime
 def get_translation(lang):
     if lang not in ['en', 'ru', 'es']:
         lang = 'en'
-    lexicon_module = importlib.import_module(f'mini_app.translations.LEXICON_{lang.upper()}')  # исправлен путь
+    lexicon_module = importlib.import_module(f'mini_app.translations.LEXICON_{lang.upper()}')
     return lexicon_module.LEXICON
 
 def initials_color(initials):
@@ -118,15 +118,23 @@ def get_tasks():
     
     task_statuses = {}
     for task in all_tasks:
+        # Get screen from task_check table
+        cursor.execute('SELECT screen FROM task_check WHERE tg_id = ? AND task_id = ?', (tg_id, task[0]))
+        record = cursor.fetchone()
+        
+        if record:
+            screen = record[0]
+            if screen:
+                task_statuses[task[0]] = 'screenshot'  # File uploaded, show dots
+            else:
+                task_statuses[task[0]] = 'upload'  # No file yet, show upload button
+        else:
+            task_statuses[task[0]] = 'link'  # No record, show link to open
+
+        # Mark task as completed if it is in user's completed tasks
         if str(task[0]) in completed_tasks:
             task_statuses[task[0]] = 'completed'
-        else:
-            cursor.execute('SELECT screen FROM task_check WHERE tg_id = ? AND task_id = ?', (tg_id, task[0]))
-            record = cursor.fetchone()
-            if record:
-                task_statuses[task[0]] = 'screenshot' if record[0] else 'upload'
-            else:
-                task_statuses[task[0]] = 'link'
+        
     return jsonify({'tasks': all_tasks, 'statuses': task_statuses})
 
 @app.route('/get_news')
@@ -252,15 +260,23 @@ def tasks():
     cursor = conn.cursor()
     task_statuses = {}
     for task in all_tasks:
+        # Get screen from task_check table
+        cursor.execute('SELECT screen FROM task_check WHERE tg_id = ? AND task_id = ?', (tg_id, task[0]))
+        record = cursor.fetchone()
+        
+        if record:
+            screen = record[0]
+            if screen:
+                task_statuses[task[0]] = 'screenshot'  # File uploaded, show dots
+            else:
+                task_statuses[task[0]] = 'upload'  # No file yet, show upload button
+        else:
+            task_statuses[task[0]] = 'link'  # No record, show link to open
+
+        # Mark task as completed if it is in user's completed tasks
         if str(task[0]) in completed_tasks:
             task_statuses[task[0]] = 'completed'
-        else:
-            cursor.execute('SELECT screen FROM task_check WHERE tg_id = ? AND task_id = ?', (tg_id, task[0]))
-            record = cursor.fetchone()
-            if record:
-                task_statuses[task[0]] = 'screenshot' if record[0] else 'upload'
-            else:
-                task_statuses[task[0]] = 'link'
+        
     conn.close()
     return render_template('tasks.html', available_tasks=all_tasks, task_statuses=task_statuses, tg_id=tg_id, translation=translation)
 
@@ -305,20 +321,24 @@ def upload_screenshot():
     
     logging.debug(f"Received upload for task {task_id} by user {tg_id}")
 
+    # Проверка типа файла
     if not file.content_type.startswith('image/'):
         logging.error(f"Invalid file type for task {task_id} by user {tg_id}: {file.content_type}")
         return jsonify({'status': 'error', 'message': 'File type not allowed'}), 400
     
+    # Генерация имени файла
     filename = f"{tg_id}-{task_id}.png"
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     
     try:
+        # Сохранение файла
         file.save(file_path)
         logging.debug(f"Screenshot saved to {file_path}")
     except Exception as e:
         logging.error(f"Failed to save screenshot for task {task_id} by user {tg_id}: {str(e)}")
         return jsonify({'status': 'error', 'message': 'Failed to save file'}), 500
     
+    # Обновление записи в базе данных
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
     cursor.execute('''
