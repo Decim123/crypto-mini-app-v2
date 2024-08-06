@@ -6,7 +6,7 @@ from lexicon.lexicon_en import LEXICON_EN
 router = Router()
 user_states = {}
 
-url = 'jus.su'
+url = 'https://jus.su'
 
 @router.message(CommandStart())
 async def process_start_command(message: Message):
