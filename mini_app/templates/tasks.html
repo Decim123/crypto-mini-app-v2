@@ -23,7 +23,7 @@
         </div>
         <div class="tasks-list">
             {% for task in available_tasks %}
-                <div class="task-item {% if task_statuses[task[0]] == 'completed' %}completed{% endif %}" id="task-item-{{ task[0] }}">
+                <div class="task-item {% if task_statuses[task[0]] == 'completed' %}completed{% endif %}">
                     <span class="task-text">{{ task[1] }}</span>
                     <div class="task-actions">
                         {% if task_statuses[task[0]] == 'link' %}
@@ -47,6 +47,25 @@
             {% endfor %}
         </div>
     </div>
+    <div class="bottom-nav">
+        <div class="nav-item" data-target="/main">
+            <span class="material-icons-outlined">home</span>
+            <span>{{ translation['home'] }}</span>
+        </div>
+        <div class="nav-item" data-target="/leaderboard">
+            <span class="material-icons-outlined">leaderboard</span>
+            <span>{{ translation['leaderboard'] }}</span>
+        </div>
+        <div class="nav-item" data-target="/friends">
+            <span class="material-icons-outlined">group</span>
+            <span>{{ translation['friends'] }}</span>
+        </div>
+        <div class="nav-item" data-target="/tasks">
+            <span class="material-icons-outlined">check_circle_outline</span>
+            <span>{{ translation['tasks'] }}</span>
+        </div>
+    </div>
+    
     <div class="bottom-nav">
         <div class="nav-item" data-target="/main">
             <span class="material-icons-outlined">home</span>
@@ -96,7 +115,6 @@
                         data.tasks.forEach(task => {
                             const taskItem = document.createElement('div');
                             taskItem.className = `task-item ${data.statuses[task[0]] === 'completed' ? 'completed' : ''}`;
-                            taskItem.id = `task-item-${task[0]}`;
                             
                             const taskText = document.createElement('span');
                             taskText.className = 'task-text';
@@ -177,14 +195,6 @@
                   .then(data => {
                       if (data.status === 'success') {
                           window.open(link, '_blank');
-                          // Меняем скрепку на кнопку загрузки после открытия ссылки
-                          const taskItem = document.getElementById(`task-item-${task_id}`);
-                          taskItem.querySelector('.task-actions').innerHTML = `
-                              <input type="file" class="upload-screenshot" id="upload-${task_id}" accept="image/*" style="display: none;" onchange="uploadScreenshot('${tg_id}', '${task_id}')">
-                              <label for="upload-${task_id}" class="upload-label" id="label-${task_id}">
-                                  <span class="material-icons-outlined">attachment</span>
-                              </label>
-                          `;
                       }
                   });
             }
@@ -203,16 +213,9 @@
                   .then(data => {
                       if (data.status === 'success') {
                           const uploadLabel = document.getElementById(`label-${task_id}`);
-                          const loadingButton = document.createElement('button');
-                          loadingButton.className = 'loading-button';
-                          loadingButton.id = `loading-${task_id}`;
-                          ['.', '.', '.'].forEach(dot => {
-                              const dotSpan = document.createElement('span');
-                              dotSpan.className = 'dot';
-                              dotSpan.innerText = dot;
-                              loadingButton.appendChild(dotSpan);
-                          });
-                          uploadLabel.parentElement.replaceChild(loadingButton, uploadLabel);
+                          const loadingButton = document.getElementById(`loading-${task_id}`);
+                          uploadLabel.style.display = 'none';
+                          loadingButton.style.display = 'flex';
                       }
                   });
             }
