@@ -27,28 +27,20 @@
                     <span class="task-text">{{ task[1] }}</span>
                     <div class="task-actions">
                         {% if task_statuses[task[0]] == 'link' %}
-                            <!-- Open link in new tab -->
-                            <a href="{{ task[3] }}" target="_blank" class="task-link" onclick="recordTaskCheck(event, '{{ tg_id }}', '{{ task[0] }}', '{{ task[2] }}', '{{ task[3] }}')">
-                                {{ task[2] }} {{ translation['currency'] }}
-                            </a>
+                            <a href="{{ task[3] }}" class="task-link" target="_blank" onclick="recordTaskCheck(event, '{{ tg_id }}', '{{ task[0] }}', '{{ task[2] }}')">{{ task[2] }} {{ translation['currency'] }}</a>
                         {% elif task_statuses[task[0]] == 'upload' %}
-                            <!-- Show attachment button to upload screenshot -->
                             <input type="file" class="upload-screenshot" id="upload-{{ task[0] }}" accept="image/*" style="display: none;" onchange="uploadScreenshot('{{ tg_id }}', '{{ task[0] }}')">
                             <label for="upload-{{ task[0] }}" class="upload-label" id="label-{{ task[0] }}">
                                 <span class="material-icons-outlined">attachment</span>
                             </label>
                         {% elif task_statuses[task[0]] == 'screenshot' %}
-                            <!-- Show loading button when screenshot is uploaded -->
-                            <button class="loading-button" id="loading-{{ task[0] }}">
+                            <button class="loading-button" id="loading-{{ task[0] }}" disabled>
                                 <span class="dot">.</span>
                                 <span class="dot">.</span>
                                 <span class="dot">.</span>
                             </button>
                         {% elif task_statuses[task[0]] == 'completed' %}
-                            <!-- Task is completed, show disabled button -->
-                            <button class="task-completed-button" disabled>
-                                {{ task[2] }} {{ translation['currency'] }}
-                            </button>
+                            <button class="task-completed-button" disabled>{{ task[2] }} {{ translation['currency'] }}</button>
                         {% endif %}
                     </div>
                 </div>
@@ -73,11 +65,11 @@
             <span>{{ translation['tasks'] }}</span>
         </div>
     </div>
-    
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const tg_id = '{{ tg_id }}';
-    
+
             document.querySelectorAll('.nav-item').forEach(function(navItem) {
                 navItem.addEventListener('click', function() {
                     const targetPage = navItem.getAttribute('data-target');
@@ -88,7 +80,7 @@
                     }
                 });
             });
-    
+
             // Функция для обновления задач
             function refreshTasks() {
                 fetch(`/get_tasks?tg_id=${tg_id}`)
@@ -117,10 +109,10 @@
                             if (data.statuses[task[0]] === 'link') {
                                 const taskLink = document.createElement('a');
                                 taskLink.href = task[3];
-                                taskLink.target = '_blank'; // Open in new tab
                                 taskLink.className = 'task-link';
+                                taskLink.target = '_blank';  // Открыть в новом окне
                                 taskLink.onclick = function(event) {
-                                    recordTaskCheck(event, tg_id, task[0], task[2], task[3]);
+                                    recordTaskCheck(event, tg_id, task[0], task[2]);
                                 };
                                 taskLink.innerText = `${task[2]} {{ translation['currency'] }}`;
                                 taskActions.appendChild(taskLink);
@@ -149,6 +141,7 @@
                                 const loadingButton = document.createElement('button');
                                 loadingButton.className = 'loading-button';
                                 loadingButton.id = `loading-${task[0]}`;
+                                loadingButton.disabled = true; // Кнопка неактивна
                                 ['.', '.', '.'].forEach(dot => {
                                     const dotSpan = document.createElement('span');
                                     dotSpan.className = 'dot';
@@ -169,13 +162,13 @@
                         });
                     });
             }
-    
+
             // Обновляем задачи каждые 10 секунд
             setInterval(refreshTasks, 10000);
             
-            function recordTaskCheck(event, tg_id, task_id, reward, link) {
+            function recordTaskCheck(event, tg_id, task_id, reward) {
                 event.preventDefault();
-    
+
                 fetch('/record_task_check', {
                     method: 'POST',
                     headers: {
@@ -185,18 +178,18 @@
                 }).then(response => response.json())
                   .then(data => {
                       if (data.status === 'success') {
-                          window.open(link, '_blank');
+                          window.open(event.target.href, '_blank');
                       }
                   });
             }
-    
+
             function uploadScreenshot(tg_id, task_id) {
                 const fileInput = document.getElementById(`upload-${task_id}`);
                 const formData = new FormData();
                 formData.append('tg_id', tg_id);
                 formData.append('task_id', task_id);
                 formData.append('screenshot', fileInput.files[0]);
-    
+
                 fetch('/upload_screenshot', {
                     method: 'POST',
                     body: formData
