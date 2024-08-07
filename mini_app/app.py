@@ -1,10 +1,12 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, send_from_directory
+from flask_cors import CORS  # Импортируем CORS
 from mini_app.database import *  # Импорт из mini_app
 import logging, os, datetime, sqlite3
 from apscheduler.schedulers.background import BackgroundScheduler
 import importlib
 
 app = Flask(__name__)
+CORS(app)  # Разрешаем CORS для всех маршрутов
 init_db()
 app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'mini_app', 'screenshots')
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -82,6 +84,7 @@ def log():
 # Манифест TON connect
 @app.route('/tonconnect-manifest.json')
 def manifest():
+    # Убедитесь, что файл действительно существует в статической папке
     return send_from_directory('static', 'tonconnect-manifest.json')
 
 @app.route('/main')
