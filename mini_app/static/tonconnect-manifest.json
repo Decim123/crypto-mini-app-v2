@@ -1,0 +1,13 @@
+{
+    "name": "TGR",
+    "description": "Приложение для взаимодействия с TON",
+    "url": "https://jus.su",
+    "icons": [
+        {
+            "src": "https://jus.su/static/images/icon.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        }
+    ],
+    "bridgeUrl": ""
+}
