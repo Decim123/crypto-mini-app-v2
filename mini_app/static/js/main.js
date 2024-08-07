@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Инициализация TON Connect UI
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-        manifestUrl: 'https://jus.su/static/tonconnect-manifest.json', // Убедитесь, что URL корректен
+        manifestUrl: 'https://jus.su/tonconnect-manifest.json', // Убедитесь, что URL корректен
         buttonRootId: 'wallet-container'  // ID элемента, куда будет добавлена кнопка подключения
     });
 
