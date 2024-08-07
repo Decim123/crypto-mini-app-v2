@@ -79,6 +79,11 @@ def log():
     logging.debug(f"Client log: {message}")
     return jsonify({'status': 'logged'}), 200
 
+# Манифест TON connect
+@app.route('/tonconnect-manifest.json')
+def manifest():
+    return send_from_directory('static', 'tonconnect-manifest.json')
+
 @app.route('/main')
 def main():
     tg_id = request.args.get('tg_id')
