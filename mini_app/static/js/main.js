@@ -1,11 +1,10 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Инициализация Telegram WebApp
     const tg = window.Telegram.WebApp;
     const tg_id = tg.initDataUnsafe.user.id;
 
     // Инициализация TON Connect UI
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-        manifestUrl: 'https://jus.su/static/tonconnect-manifest.json', // Убедитесь, что URL манифеста корректен
+        manifestUrl: 'https://jus.su/static/tonconnect-manifest.json', // Убедитесь, что URL корректен
         buttonRootId: 'wallet-container'  // ID элемента, куда будет добавлена кнопка подключения
     });
 
@@ -40,64 +39,38 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             // Кошелек отключен
             console.log('Wallet disconnected.');
+            displayConnectButton();
         }
     });
 
-    // Функция для отображения адреса кошелька
     function displayWalletAddress(walletAddress) {
         const walletContainer = document.getElementById('wallet-container');
         walletContainer.innerHTML = `<div class="wallet-display">${walletAddress.slice(0, 3)}...${walletAddress.slice(-3)}</div>`;
     }
 
-    // Подписка на изменение состояния модального окна (опционально)
-    const modalUnsubscribe = tonConnectUI.onModalStateChange((state) => {
-        console.log('Modal state changed:', state);
-    });
-
-    // Пример открытия модального окна вручную
-    document.getElementById('connect-wallet-button').addEventListener('click', () => {
-        tonConnectUI.openModal();
-    });
-
-    // Навигация по страницам
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const targetPage = item.getAttribute('data-target');
-            if (targetPage === '/main') {
-                // Ничего не делаем, если текущая страница '/main'
-                return;
-            }
-            if (targetPage === '/leaderboard' || targetPage === '/friends' || targetPage === '/tasks') {
-                window.location.href = `${targetPage}?tg_id=${tg_id}`;
-            } else {
-                window.location.href = `${targetPage}`;
-            }
+    function displayConnectButton() {
+        const walletContainer = document.getElementById('wallet-container');
+        walletContainer.innerHTML = `<button id="connect-wallet-button" class="connect-wallet-button">Подключить TON Кошелек</button>`;
+        document.getElementById('connect-wallet-button').addEventListener('click', () => {
+            tonConnectUI.openModal();
         });
-    });
+    }
 
-    // Загрузка данных пользователя
+    // Проверка состояния кошелька и отображение кнопки или адреса
     fetch(`/user_data?tg_id=${tg_id}`)
         .then(response => response.json())
         .then(data => {
             if (data.error) {
                 window.location.href = `/start`;
             } else {
-                // Обновление количества монет на странице
                 document.querySelector('.coin-amount').textContent = data.coins.toLocaleString();
 
-                const walletContainer = document.getElementById('wallet-container');
-                walletContainer.innerHTML = '';
-
                 if (data.wallet) {
-                    const walletDisplay = document.createElement('div');
-                    walletDisplay.className = 'wallet-display';
-                    walletDisplay.textContent = `${data.wallet.slice(0, 3)}...${data.wallet.slice(-3)}`;
-                    walletContainer.appendChild(walletDisplay);
+                    displayWalletAddress(data.wallet);
                 } else {
-                    // Кнопка подключения TON Connect UI будет добавлена через SDK
+                    displayConnectButton();
                 }
 
-                // Инициализация выпадающего списка языков
                 const languageDropdown = document.getElementById('language-dropdown');
                 if (data.lang) {
                     languageDropdown.value = data.lang;
@@ -123,7 +96,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
                 });
             }
-        });
+        })
+        .catch(error => console.error('Error fetching user data:', error));
 
     // Загрузка новостей
     fetch('/get_news')
@@ -154,7 +128,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 dotsContainer.appendChild(dot);
             });
 
-            // Функции для управления слайдами новостей
             function showSlide(index) {
                 const slides = document.querySelectorAll('.news-item');
                 const dots = document.querySelectorAll('.dot');
@@ -193,5 +166,21 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             showSlide(currentIndex);
+        })
+        .catch(error => console.error('Error fetching news:', error));
+
+    // Навигация по страницам
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const targetPage = item.getAttribute('data-target');
+            if (targetPage === '/main') {
+                return; // Do nothing if the target page is '/main'
+            }
+            if (targetPage === '/leaderboard' || targetPage === '/friends' || targetPage === '/tasks') {
+                window.location.href = `${targetPage}?tg_id=${tg_id}`;
+            } else {
+                window.location.href = `${targetPage}`;
+            }
         });
+    });
 });
