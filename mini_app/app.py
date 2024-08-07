@@ -508,7 +508,7 @@ def auto_accept_tasks():
     conn.close()
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(func=auto_accept_tasks, trigger="interval", hours=1)
+scheduler.add_job(func=auto_accept_tasks, trigger="interval", hours=48)
 scheduler.start()
 
 if __name__ == '__main__':
