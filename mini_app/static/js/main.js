@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Инициализация TON Connect UI
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-        manifestUrl: 'https://yourdomain.com/tonconnect-manifest.json', // Обязательно укажите путь к вашему манифесту
+        manifestUrl: 'https://jus.su/static/tonconnect-manifest.json', // Убедитесь, что URL корректен
         buttonRootId: 'wallet-container'  // ID элемента, куда будет добавлена кнопка подключения
     });
 
@@ -34,7 +34,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data.status === 'success') {
                     console.log('Wallet address saved successfully.');
                 }
-            });
+            })
+            .catch(error => console.error('Error:', error));
         } else {
             // Кошелек отключен
             console.log('Wallet disconnected.');
@@ -51,11 +52,12 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('Modal state changed:', state);
     });
 
-    // Открытие модального окна вручную, если необходимо
-    // await tonConnectUI.openModal();
+    // Пример открытия модального окна вручную
+    document.getElementById('connect-wallet-button').addEventListener('click', () => {
+        tonConnectUI.openModal();
+    });
 
-    // Остальной код для работы с пользовательским интерфейсом
-
+    // Навигация по страницам
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => {
             const targetPage = item.getAttribute('data-target');
@@ -71,6 +73,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Загрузка данных пользователя
     fetch(`/user_data?tg_id=${tg_id}`)
         .then(response => response.json())
         .then(data => {
@@ -118,6 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
+    // Загрузка новостей
     fetch('/get_news')
         .then(response => response.json())
         .then(newsData => {
