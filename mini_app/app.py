@@ -113,29 +113,22 @@ def get_tasks():
     translation = get_translation(lang)
     active_tasks = get_active_tasks()
     completed_tasks = user[6].split(',') if user[6] else []
-    available_tasks = [task for task in active_tasks if str(task[0]) not in completed_tasks]
-    all_tasks = available_tasks + [task for task in active_tasks if str(task[0]) in completed_tasks]
-    
-    task_statuses = {}
-    for task in all_tasks:
-        # Get screen from task_check table
-        cursor.execute('SELECT screen FROM task_check WHERE tg_id = ? AND task_id = ?', (tg_id, task[0]))
-        record = cursor.fetchone()
-        
-        if record:
-            screen = record[0]
-            if screen:
-                task_statuses[task[0]] = 'screenshot'  # File uploaded, show dots
-            else:
-                task_statuses[task[0]] = 'upload'  # No file yet, show upload button
-        else:
-            task_statuses[task[0]] = 'link'  # No record, show link to open
 
-        # Mark task as completed if it is in user's completed tasks
-        if str(task[0]) in completed_tasks:
-            task_statuses[task[0]] = 'completed'
-        
-    return jsonify({'tasks': all_tasks, 'statuses': task_statuses})
+    # Объединяем все задачи и определяем их статусы
+    all_tasks = {task[0]: task for task in active_tasks}
+    task_statuses = {}
+
+    for task_id, task in all_tasks.items():
+        if str(task_id) in completed_tasks:
+            task_statuses[task_id] = 'completed'
+        else:
+            cursor.execute('SELECT screen FROM task_check WHERE tg_id = ? AND task_id = ?', (tg_id, task_id))
+            record = cursor.fetchone()
+            if record:
+                task_statuses[task_id] = 'screenshot' if record[0] else 'upload'
+            else:
+                task_statuses[task_id] = 'link'
+    return jsonify({'tasks': list(all_tasks.values()), 'statuses': task_statuses})
 
 @app.route('/get_news')
 def get_news():
