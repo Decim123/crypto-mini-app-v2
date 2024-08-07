@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function displayWalletAddress(walletAddress) {
         const walletContainer = document.getElementById('wallet-container');
-        walletContainer.innerHTML = `<div class="wallet-display">${walletAddress.slice(0, 3)}...${walletAddress.slice(-3)}</div>`;
+        walletContainer.innerHTML = `<div class="wallet-display">${walletAddress.slice(0,10)}...${walletAddress.slice(-10)}</div>`;
     }
 
     function displayConnectButton() {
