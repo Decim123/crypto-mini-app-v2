@@ -24,7 +24,7 @@ async def process_start_command(message: Message):
                 InlineKeyboardButton(text="Join community", url="https://t.me/TGRExchange")
             ]
         ])  
-        caption = LEXICON_EN['/start'] + str(args)
+        caption = LEXICON_EN['/start']
     else:
         inline_kb = InlineKeyboardMarkup(inline_keyboard=[
             [
