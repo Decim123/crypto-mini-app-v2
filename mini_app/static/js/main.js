@@ -1,10 +1,11 @@
 document.addEventListener('DOMContentLoaded', function () {
+    // Инициализация Telegram WebApp
     const tg = window.Telegram.WebApp;
     const tg_id = tg.initDataUnsafe.user.id;
 
     // Инициализация TON Connect UI
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-        manifestUrl: 'https://jus.su/static/tonconnect-manifest.json', // Убедитесь, что URL корректен
+        manifestUrl: 'https://jus.su/static/tonconnect-manifest.json', // Убедитесь, что URL манифеста корректен
         buttonRootId: 'wallet-container'  // ID элемента, куда будет добавлена кнопка подключения
     });
 
@@ -42,6 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // Функция для отображения адреса кошелька
     function displayWalletAddress(walletAddress) {
         const walletContainer = document.getElementById('wallet-container');
         walletContainer.innerHTML = `<div class="wallet-display">${walletAddress.slice(0, 3)}...${walletAddress.slice(-3)}</div>`;
@@ -62,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function () {
         item.addEventListener('click', () => {
             const targetPage = item.getAttribute('data-target');
             if (targetPage === '/main') {
-                // Do nothing if the target page is '/main'
+                // Ничего не делаем, если текущая страница '/main'
                 return;
             }
             if (targetPage === '/leaderboard' || targetPage === '/friends' || targetPage === '/tasks') {
@@ -80,6 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (data.error) {
                 window.location.href = `/start`;
             } else {
+                // Обновление количества монет на странице
                 document.querySelector('.coin-amount').textContent = data.coins.toLocaleString();
 
                 const walletContainer = document.getElementById('wallet-container');
@@ -94,6 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Кнопка подключения TON Connect UI будет добавлена через SDK
                 }
 
+                // Инициализация выпадающего списка языков
                 const languageDropdown = document.getElementById('language-dropdown');
                 if (data.lang) {
                     languageDropdown.value = data.lang;
@@ -150,6 +154,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 dotsContainer.appendChild(dot);
             });
 
+            // Функции для управления слайдами новостей
             function showSlide(index) {
                 const slides = document.querySelectorAll('.news-item');
                 const dots = document.querySelectorAll('.dot');
