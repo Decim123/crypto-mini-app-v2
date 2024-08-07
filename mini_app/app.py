@@ -276,10 +276,22 @@ def tasks():
 
 @app.route('/record_task_check', methods=['POST'])
 def record_task_check():
-    data = request.json
-    tg_id = data['tg_id']
-    task_id = data['task_id']
-    reward = data['reward']
+    # Декодируйте входящие данные JSON и логируйте их
+    data = request.get_json()
+    if data is None:
+        logging.error('No data received for task check')
+        return jsonify({'status': 'error', 'message': 'No data received'}), 400
+
+    logging.debug(f"Received task check data: {data}")
+    
+    # Убедитесь, что все ключи присутствуют в данных
+    try:
+        tg_id = data['tg_id']
+        task_id = data['task_id']
+        reward = data['reward']
+    except KeyError as e:
+        logging.error(f"Missing data key: {e}")
+        return jsonify({'status': 'error', 'message': f'Missing data key: {e}'}), 400
     
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
@@ -308,10 +320,14 @@ def record_task_check():
 # Маршрут для загрузки скриншота
 @app.route('/upload_screenshot', methods=['POST'])
 def upload_screenshot():
-    tg_id = request.form['tg_id']
-    task_id = request.form['task_id']
-    file = request.files['screenshot']
+    tg_id = request.form.get('tg_id')
+    task_id = request.form.get('task_id')
+    file = request.files.get('screenshot')
     
+    if not tg_id or not task_id or not file:
+        logging.error("Missing data for file upload")
+        return jsonify({'status': 'error', 'message': 'Missing data'}), 400
+
     logging.debug(f"Received upload for task {task_id} by user {tg_id}")
 
     if not file.content_type.startswith('image/'):
@@ -372,11 +388,19 @@ def task_checking():
 
 @app.route('/accept_task', methods=['POST'])
 def accept_task():
-    data = request.json
-    tg_id = data['tg_id']
-    task_id = data['task_id']
-    reward = data['reward']
-    screen = data['screen']
+    data = request.get_json()
+    if not data:
+        logging.error("No data received for task acceptance")
+        return jsonify({'status': 'error', 'message': 'No data received'}), 400
+    
+    try:
+        tg_id = data['tg_id']
+        task_id = data['task_id']
+        reward = data['reward']
+        screen = data['screen']
+    except KeyError as e:
+        logging.error(f"Missing data key: {e}")
+        return jsonify({'status': 'error', 'message': f'Missing data key: {e}'}), 400
 
     # Обновление баланса пользователя и добавление выполненного задания
     user = get_user_by_tg_id(tg_id)
@@ -403,10 +427,18 @@ def uploaded_file(filename):
 
 @app.route('/reject_task', methods=['POST'])
 def reject_task():
-    data = request.json
-    tg_id = data['tg_id']
-    task_id = data['task_id']
-    screen = data['screen']
+    data = request.get_json()
+    if not data:
+        logging.error("No data received for task rejection")
+        return jsonify({'status': 'error', 'message': 'No data received'}), 400
+    
+    try:
+        tg_id = data['tg_id']
+        task_id = data['task_id']
+        screen = data['screen']
+    except KeyError as e:
+        logging.error(f"Missing data key: {e}")
+        return jsonify({'status': 'error', 'message': f'Missing data key: {e}'}), 400
 
     # Удаление записи из task_check и удаление скриншота
     conn = sqlite3.connect('users.db')
@@ -422,9 +454,18 @@ def reject_task():
 
 @app.route('/update_language', methods=['POST'])
 def update_language():
-    data = request.json
-    tg_id = data['tg_id']
-    lang = data['lang']
+    data = request.get_json()
+    if not data:
+        logging.error("No data received for language update")
+        return jsonify({'status': 'error', 'message': 'No data received'}), 400
+    
+    try:
+        tg_id = data['tg_id']
+        lang = data['lang']
+    except KeyError as e:
+        logging.error(f"Missing data key: {e}")
+        return jsonify({'status': 'error', 'message': f'Missing data key: {e}'}), 400
+
     logging.debug(f"Updating language for user: tg_id={tg_id}, lang={lang}")
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
