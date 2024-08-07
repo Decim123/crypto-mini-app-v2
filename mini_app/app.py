@@ -314,24 +314,20 @@ def upload_screenshot():
     
     logging.debug(f"Received upload for task {task_id} by user {tg_id}")
 
-    # Проверка типа файла
     if not file.content_type.startswith('image/'):
         logging.error(f"Invalid file type for task {task_id} by user {tg_id}: {file.content_type}")
         return jsonify({'status': 'error', 'message': 'File type not allowed'}), 400
     
-    # Генерация имени файла
     filename = f"{tg_id}-{task_id}.png"
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     
     try:
-        # Сохранение файла
         file.save(file_path)
         logging.debug(f"Screenshot saved to {file_path}")
     except Exception as e:
         logging.error(f"Failed to save screenshot for task {task_id} by user {tg_id}: {str(e)}")
         return jsonify({'status': 'error', 'message': 'Failed to save file'}), 500
     
-    # Обновление записи в базе данных
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
     cursor.execute('''
@@ -343,7 +339,6 @@ def upload_screenshot():
     logging.debug(f"Database updated with screenshot path for task {task_id} by user {tg_id}")
 
     return jsonify({'status': 'success'})
-
 
 @app.route('/task_checking')
 def task_checking():
